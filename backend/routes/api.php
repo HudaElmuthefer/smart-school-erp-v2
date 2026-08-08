@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\SchoolSettingsController;
 use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\SubjectController;
+use App\Http\Controllers\Api\TeacherController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -29,4 +30,5 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::apiResource('sections', SectionController::class)->except(['show']);
     Route::apiResource('subjects', SubjectController::class)->except(['show']);
     Route::apiResource('students', StudentController::class);
+    Route::apiResource('teachers', TeacherController::class)->except(['show']);
 });
