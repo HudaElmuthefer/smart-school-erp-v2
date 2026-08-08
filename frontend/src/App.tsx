@@ -5,6 +5,8 @@ import LoginScreen from './pages/LoginScreen';
 import DashboardShell from './pages/DashboardShell';
 import SettingsPage from './pages/SettingsPage';
 import SchoolsPage from './pages/SchoolsPage';
+import AcademicStructurePage from './pages/AcademicStructurePage';
+import StudentsPage from './pages/StudentsPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -25,6 +27,8 @@ function App() {
       <Route path="/" element={<ProtectedRoute><DashboardShell /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/schools" element={<ProtectedRoute><SchoolsPage /></ProtectedRoute>} />
+      <Route path="/academic-structure" element={<ProtectedRoute><AcademicStructurePage /></ProtectedRoute>} />
+      <Route path="/students" element={<ProtectedRoute><StudentsPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
