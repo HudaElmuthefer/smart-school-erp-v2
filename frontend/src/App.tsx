@@ -1,0 +1,33 @@
+import { type ReactNode } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { useAuthStore } from './store/authStore';
+import LoginScreen from './pages/LoginScreen';
+import DashboardShell from './pages/DashboardShell';
+import SettingsPage from './pages/SettingsPage';
+import SchoolsPage from './pages/SchoolsPage';
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const token = useAuthStore((s) => s.token);
+  if (!token) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
+function PublicOnlyRoute({ children }: { children: ReactNode }) {
+  const token = useAuthStore((s) => s.token);
+  if (token) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<PublicOnlyRoute><LoginScreen /></PublicOnlyRoute>} />
+      <Route path="/" element={<ProtectedRoute><DashboardShell /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/schools" element={<ProtectedRoute><SchoolsPage /></ProtectedRoute>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+export default App;

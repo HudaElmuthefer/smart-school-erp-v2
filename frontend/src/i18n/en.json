@@ -1,0 +1,20 @@
+{
+  "appName": "Smart School System",
+  "login": {
+    "title": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign In",
+    "submitting": "Signing in...",
+    "invalid": "Incorrect email or password"
+  },
+  "nav": {
+    "home": "Home",
+    "students": "Students",
+    "academicStructure": "Academic Structure",
+    "teachers": "Teachers",
+    "schools": "Branches",
+    "settings": "Settings",
+    "logout": "Logout"
+  }
+}
