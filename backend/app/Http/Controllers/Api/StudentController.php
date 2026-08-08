@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Concerns\ScopesToSchool;
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -71,5 +73,33 @@ class StudentController extends Controller
         $student->delete();
 
         return response()->json(['message' => 'تم حذف الطالب']);
+    }
+
+    /** ينشئ حساب ولي أمر يتصرف نيابة عن هذا الطالب (لا يوجد تسجيل دخول للطالب نفسه) */
+    public function createGuardianAccount(Request $request, Student $student)
+    {
+        $this->assertBelongsToUserSchool($request, $student->school_id);
+        abort_if($student->guardianAccount()->exists(), 422, 'يوجد حساب ولي أمر مسبقاً لهذا الطالب');
+
+        $data = $request->validate([
+            'full_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+            'phone' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $parentRoleId = Role::where('name', 'parent')->value('id');
+
+        $user = User::create([
+            'full_name' => $data['full_name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'phone' => $data['phone'] ?? null,
+            'role_id' => $parentRoleId,
+            'school_id' => $student->school_id,
+            'student_id' => $student->id,
+        ]);
+
+        return response()->json(['guardian_account' => $user], 201);
     }
 }

@@ -10,6 +10,7 @@ import StudentsPage from './pages/StudentsPage';
 import TeachersPage from './pages/TeachersPage';
 import AttendancePage from './pages/AttendancePage';
 import GradesPage from './pages/GradesPage';
+import AssignmentsPage from './pages/AssignmentsPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -35,6 +36,7 @@ function App() {
       <Route path="/teachers" element={<ProtectedRoute><TeachersPage /></ProtectedRoute>} />
       <Route path="/attendance" element={<ProtectedRoute><AttendancePage /></ProtectedRoute>} />
       <Route path="/grades" element={<ProtectedRoute><GradesPage /></ProtectedRoute>} />
+      <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

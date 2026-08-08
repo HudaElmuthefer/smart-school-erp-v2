@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3 } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useLocaleStore } from '../../store/localeStore';
@@ -13,17 +13,19 @@ interface NavItem {
   icon: ReactNode;
   labelKey: string;
   roles?: string[];
+  excludeRoles?: string[];
 }
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'home', to: '/', icon: <LayoutDashboard size={18} />, labelKey: 'nav.home' },
-  { key: 'students', to: '/students', icon: <GraduationCap size={18} />, labelKey: 'nav.students' },
-  { key: 'academic', to: '/academic-structure', icon: <Users size={18} />, labelKey: 'nav.academicStructure' },
-  { key: 'teachers', to: '/teachers', icon: <Users size={18} />, labelKey: 'nav.teachers' },
-  { key: 'attendance', to: '/attendance', icon: <CalendarCheck size={18} />, labelKey: 'nav.attendance' },
-  { key: 'grades', to: '/grades', icon: <BarChart3 size={18} />, labelKey: 'nav.grades' },
+  { key: 'students', to: '/students', icon: <GraduationCap size={18} />, labelKey: 'nav.students', excludeRoles: ['parent'] },
+  { key: 'academic', to: '/academic-structure', icon: <Users size={18} />, labelKey: 'nav.academicStructure', excludeRoles: ['parent'] },
+  { key: 'teachers', to: '/teachers', icon: <Users size={18} />, labelKey: 'nav.teachers', excludeRoles: ['parent'] },
+  { key: 'attendance', to: '/attendance', icon: <CalendarCheck size={18} />, labelKey: 'nav.attendance', excludeRoles: ['parent'] },
+  { key: 'grades', to: '/grades', icon: <BarChart3 size={18} />, labelKey: 'nav.grades', excludeRoles: ['parent'] },
+  { key: 'assignments', to: '/assignments', icon: <ClipboardList size={18} />, labelKey: 'nav.assignments' },
   { key: 'schools', to: '/schools', icon: <Building2 size={18} />, labelKey: 'nav.schools', roles: ['super_admin'] },
-  { key: 'settings', to: '/settings', icon: <Settings size={18} />, labelKey: 'nav.settings' },
+  { key: 'settings', to: '/settings', icon: <Settings size={18} />, labelKey: 'nav.settings', excludeRoles: ['parent'] },
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -35,7 +37,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const { mode, toggle: toggleTheme } = useThemeStore();
   const { locale, setLocale } = useLocaleStore();
 
-  const visibleItems = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(user?.role ?? ''));
+  const visibleItems = NAV_ITEMS.filter(
+    (item) =>
+      (!item.roles || item.roles.includes(user?.role ?? '')) &&
+      (!item.excludeRoles || !item.excludeRoles.includes(user?.role ?? '')),
+  );
 
   const logout = async () => {
     try {

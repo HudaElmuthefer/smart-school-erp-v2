@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AcademicYearController;
+use App\Http\Controllers\Api\AssignmentController;
+use App\Http\Controllers\Api\AssignmentSubmissionController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BiometricDeviceController;
@@ -23,33 +25,46 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
-    Route::put('/school-settings', [SchoolSettingsController::class, 'update']);
+    // متاح لولي الأمر أيضاً (يفلتر داخلياً حسب الدور) ولباقي الطاقم
+    Route::get('/assignments', [AssignmentController::class, 'index']);
+    Route::post('/assignments/{assignment}/submissions', [AssignmentSubmissionController::class, 'store']);
 
-    Route::get('/schools', [SchoolController::class, 'index']);
-    Route::post('/schools', [SchoolController::class, 'store']);
-    Route::put('/schools/{school}', [SchoolController::class, 'update']);
-    Route::delete('/schools/{school}', [SchoolController::class, 'destroy']);
+    Route::middleware('staff')->group(function () {
+        Route::put('/school-settings', [SchoolSettingsController::class, 'update']);
 
-    Route::apiResource('grade-levels', GradeLevelController::class)
-        ->except(['show'])
-        ->parameters(['grade-levels' => 'gradeLevel']);
-    Route::apiResource('sections', SectionController::class)->except(['show']);
-    Route::apiResource('subjects', SubjectController::class)->except(['show']);
-    Route::apiResource('students', StudentController::class);
-    Route::apiResource('teachers', TeacherController::class)->except(['show']);
+        Route::get('/schools', [SchoolController::class, 'index']);
+        Route::post('/schools', [SchoolController::class, 'store']);
+        Route::put('/schools/{school}', [SchoolController::class, 'update']);
+        Route::delete('/schools/{school}', [SchoolController::class, 'destroy']);
 
-    Route::apiResource('biometric-devices', BiometricDeviceController::class)
-        ->except(['show'])
-        ->parameters(['biometric-devices' => 'device']);
-    Route::get('/attendances', [AttendanceController::class, 'index']);
-    Route::post('/attendances', [AttendanceController::class, 'store']);
+        Route::apiResource('grade-levels', GradeLevelController::class)
+            ->except(['show'])
+            ->parameters(['grade-levels' => 'gradeLevel']);
+        Route::apiResource('sections', SectionController::class)->except(['show']);
+        Route::apiResource('subjects', SubjectController::class)->except(['show']);
+        Route::apiResource('students', StudentController::class);
+        Route::post('/students/{student}/guardian-account', [StudentController::class, 'createGuardianAccount']);
+        Route::apiResource('teachers', TeacherController::class)->except(['show']);
 
-    Route::apiResource('academic-years', AcademicYearController::class)
-        ->except(['show'])
-        ->parameters(['academic-years' => 'academicYear']);
-    Route::get('/monthly-scores', [MonthlyScoreController::class, 'index']);
-    Route::post('/monthly-scores', [MonthlyScoreController::class, 'upsert']);
-    Route::post('/term-scores', [TermScoreController::class, 'upsert']);
-    Route::get('/grade-reports/section', [GradeReportController::class, 'forSection']);
-    Route::get('/grade-reports/students/{student}', [GradeReportController::class, 'forStudent']);
+        Route::apiResource('biometric-devices', BiometricDeviceController::class)
+            ->except(['show'])
+            ->parameters(['biometric-devices' => 'device']);
+        Route::get('/attendances', [AttendanceController::class, 'index']);
+        Route::post('/attendances', [AttendanceController::class, 'store']);
+
+        Route::apiResource('academic-years', AcademicYearController::class)
+            ->except(['show'])
+            ->parameters(['academic-years' => 'academicYear']);
+        Route::get('/monthly-scores', [MonthlyScoreController::class, 'index']);
+        Route::post('/monthly-scores', [MonthlyScoreController::class, 'upsert']);
+        Route::post('/term-scores', [TermScoreController::class, 'upsert']);
+        Route::get('/grade-reports/section', [GradeReportController::class, 'forSection']);
+        Route::get('/grade-reports/students/{student}', [GradeReportController::class, 'forStudent']);
+
+        Route::post('/assignments', [AssignmentController::class, 'store']);
+        Route::put('/assignments/{assignment}', [AssignmentController::class, 'update']);
+        Route::delete('/assignments/{assignment}', [AssignmentController::class, 'destroy']);
+        Route::get('/assignments/{assignment}/roster', [AssignmentController::class, 'roster']);
+        Route::put('/assignment-submissions/{submission}/grade', [AssignmentSubmissionController::class, 'grade']);
+    });
 });

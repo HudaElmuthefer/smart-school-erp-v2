@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
+            'staff' => \App\Http\Middleware\EnsureStaffRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
