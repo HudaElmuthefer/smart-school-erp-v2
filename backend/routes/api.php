@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AcademicYearController;
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\AssignmentSubmissionController;
 use App\Http\Controllers\Api\AttendanceController;
@@ -38,6 +39,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     // متاح لولي الأمر أيضاً (يفلتر داخلياً حسب الدور) ولباقي الطاقم
     Route::get('/assignments', [AssignmentController::class, 'index']);
     Route::post('/assignments/{assignment}/submissions', [AssignmentSubmissionController::class, 'store']);
+
+    Route::get('/announcements', [AnnouncementController::class, 'index']);
 
     Route::get('/lessons', [LessonController::class, 'index']);
     Route::get('/quizzes', [QuizController::class, 'index']);
@@ -104,5 +107,9 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
         Route::apiResource('items', ItemController::class)->except(['show']);
         Route::apiResource('stock-movements', StockMovementController::class)->only(['index', 'store', 'destroy']);
+
+        Route::post('/announcements', [AnnouncementController::class, 'store']);
+        Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update']);
+        Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
     });
 });
