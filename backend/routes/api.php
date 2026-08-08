@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\GradeReportController;
 use App\Http\Controllers\Api\InstallmentPaymentController;
 use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\LessonController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\MonthlyScoreController;
 use App\Http\Controllers\Api\QuizAttemptController;
 use App\Http\Controllers\Api\QuizController;
@@ -46,6 +47,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::get('/quizzes', [QuizController::class, 'index']);
     Route::get('/quizzes/{quiz}', [QuizController::class, 'show']);
     Route::post('/quizzes/{quiz}/attempts', [QuizAttemptController::class, 'store']);
+
+    Route::get('/messages/contacts', [MessageController::class, 'contacts']);
+    Route::get('/messages/inbox', [MessageController::class, 'inbox']);
+    Route::get('/messages/thread/{user}', [MessageController::class, 'thread']);
+    Route::post('/messages', [MessageController::class, 'store']);
 
     Route::middleware('staff')->group(function () {
         Route::put('/school-settings', [SchoolSettingsController::class, 'update']);

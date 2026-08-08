@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList, BookOpen, Briefcase, Wallet, Receipt, Package, Megaphone } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList, BookOpen, Briefcase, Wallet, Receipt, Package, Megaphone, MessageSquare } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useLocaleStore } from '../../store/localeStore';
@@ -19,6 +19,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { key: 'home', to: '/', icon: <LayoutDashboard size={18} />, labelKey: 'nav.home' },
   { key: 'announcements', to: '/announcements', icon: <Megaphone size={18} />, labelKey: 'nav.announcements' },
+  { key: 'messages', to: '/messages', icon: <MessageSquare size={18} />, labelKey: 'nav.messages' },
   { key: 'students', to: '/students', icon: <GraduationCap size={18} />, labelKey: 'nav.students', excludeRoles: ['parent'] },
   { key: 'academic', to: '/academic-structure', icon: <Users size={18} />, labelKey: 'nav.academicStructure', excludeRoles: ['parent'] },
   { key: 'teachers', to: '/teachers', icon: <Users size={18} />, labelKey: 'nav.teachers', excludeRoles: ['parent'] },
