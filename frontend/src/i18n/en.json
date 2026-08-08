@@ -25,6 +25,8 @@
     "inventory": "Inventory",
     "exportImport": "Export/Import",
     "backups": "Backups",
+    "aiChat": "AI Assistant",
+    "earlyWarning": "Early Warning",
     "schools": "Branches",
     "settings": "Settings",
     "logout": "Logout"

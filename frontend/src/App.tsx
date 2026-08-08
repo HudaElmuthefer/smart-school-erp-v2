@@ -20,6 +20,8 @@ import AnnouncementsPage from './pages/AnnouncementsPage';
 import MessagesPage from './pages/MessagesPage';
 import ExportImportPage from './pages/ExportImportPage';
 import BackupsPage from './pages/BackupsPage';
+import AiChatPage from './pages/AiChatPage';
+import EarlyWarningPage from './pages/EarlyWarningPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -55,6 +57,8 @@ function App() {
       <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
       <Route path="/export-import" element={<ProtectedRoute><ExportImportPage /></ProtectedRoute>} />
       <Route path="/backups" element={<ProtectedRoute><BackupsPage /></ProtectedRoute>} />
+      <Route path="/ai-chat" element={<ProtectedRoute><AiChatPage /></ProtectedRoute>} />
+      <Route path="/early-warning" element={<ProtectedRoute><EarlyWarningPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

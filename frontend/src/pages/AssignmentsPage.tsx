@@ -143,6 +143,24 @@ function StaffAssignments() {
     },
   });
 
+  const aiSuggest = useMutation({
+    mutationFn: (submissionId: number) =>
+      api.post<{ suggested_score: number | null; suggested_feedback: string | null }>(
+        `/assignment-submissions/${submissionId}/ai-suggestion`,
+      ),
+    onSuccess: (res, submissionId) => {
+      const scoreEl = document.getElementById(`score-${submissionId}`) as HTMLInputElement | null;
+      const feedbackEl = document.getElementById(`feedback-${submissionId}`) as HTMLInputElement | null;
+      if (res.data.suggested_score !== null && scoreEl) scoreEl.value = String(res.data.suggested_score);
+      if (res.data.suggested_feedback && feedbackEl) feedbackEl.value = res.data.suggested_feedback;
+      toast.success('تم اقتراح التصحيح — راجعه ثم اضغط حفظ');
+    },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(msg || 'حدث خطأ أثناء طلب اقتراح الذكاء الاصطناعي');
+    },
+  });
+
   const inputCls =
     'rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-navy-800 dark:text-white';
 
@@ -272,6 +290,13 @@ function StaffAssignments() {
                         className="rounded-lg bg-gold-500 px-3 py-2 text-xs font-bold text-navy-950"
                       >
                         حفظ
+                      </button>
+                      <button
+                        onClick={() => aiSuggest.mutate(row.submission!.id)}
+                        disabled={aiSuggest.isPending}
+                        className="rounded-lg border border-gold-500 px-3 py-2 text-xs font-bold text-gold-600 disabled:opacity-60"
+                      >
+                        🤖 اقتراح ذكاء اصطناعي
                       </button>
                     </div>
                   )}

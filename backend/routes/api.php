@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Api\AcademicYearController;
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\AiChatController;
+use App\Http\Controllers\Api\AiEarlyWarningController;
+use App\Http\Controllers\Api\AiGradingController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\AssignmentSubmissionController;
@@ -56,6 +59,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::get('/messages/thread/{user}', [MessageController::class, 'thread']);
     Route::post('/messages', [MessageController::class, 'store']);
 
+    Route::post('/ai/chat', AiChatController::class);
+
     Route::middleware('staff')->group(function () {
         Route::put('/school-settings', [SchoolSettingsController::class, 'update']);
 
@@ -96,6 +101,9 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::delete('/assignments/{assignment}', [AssignmentController::class, 'destroy']);
         Route::get('/assignments/{assignment}/roster', [AssignmentController::class, 'roster']);
         Route::put('/assignment-submissions/{submission}/grade', [AssignmentSubmissionController::class, 'grade']);
+        Route::post('/assignment-submissions/{submission}/ai-suggestion', AiGradingController::class);
+
+        Route::get('/ai/early-warning', AiEarlyWarningController::class);
 
         Route::post('/lessons', [LessonController::class, 'store']);
         Route::put('/lessons/{lesson}', [LessonController::class, 'update']);
