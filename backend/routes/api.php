@@ -1,15 +1,19 @@
 <?php
 
+use App\Http\Controllers\Api\AcademicYearController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BiometricDeviceController;
 use App\Http\Controllers\Api\GradeLevelController;
+use App\Http\Controllers\Api\GradeReportController;
+use App\Http\Controllers\Api\MonthlyScoreController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\SchoolSettingsController;
 use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\SubjectController;
 use App\Http\Controllers\Api\TeacherController;
+use App\Http\Controllers\Api\TermScoreController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -39,4 +43,13 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         ->parameters(['biometric-devices' => 'device']);
     Route::get('/attendances', [AttendanceController::class, 'index']);
     Route::post('/attendances', [AttendanceController::class, 'store']);
+
+    Route::apiResource('academic-years', AcademicYearController::class)
+        ->except(['show'])
+        ->parameters(['academic-years' => 'academicYear']);
+    Route::get('/monthly-scores', [MonthlyScoreController::class, 'index']);
+    Route::post('/monthly-scores', [MonthlyScoreController::class, 'upsert']);
+    Route::post('/term-scores', [TermScoreController::class, 'upsert']);
+    Route::get('/grade-reports/section', [GradeReportController::class, 'forSection']);
+    Route::get('/grade-reports/students/{student}', [GradeReportController::class, 'forStudent']);
 });
