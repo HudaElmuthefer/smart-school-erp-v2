@@ -8,7 +8,10 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BiometricDeviceController;
 use App\Http\Controllers\Api\GradeLevelController;
 use App\Http\Controllers\Api\GradeReportController;
+use App\Http\Controllers\Api\LessonController;
 use App\Http\Controllers\Api\MonthlyScoreController;
+use App\Http\Controllers\Api\QuizAttemptController;
+use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\SchoolSettingsController;
 use App\Http\Controllers\Api\SectionController;
@@ -28,6 +31,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     // متاح لولي الأمر أيضاً (يفلتر داخلياً حسب الدور) ولباقي الطاقم
     Route::get('/assignments', [AssignmentController::class, 'index']);
     Route::post('/assignments/{assignment}/submissions', [AssignmentSubmissionController::class, 'store']);
+
+    Route::get('/lessons', [LessonController::class, 'index']);
+    Route::get('/quizzes', [QuizController::class, 'index']);
+    Route::get('/quizzes/{quiz}', [QuizController::class, 'show']);
+    Route::post('/quizzes/{quiz}/attempts', [QuizAttemptController::class, 'store']);
 
     Route::middleware('staff')->group(function () {
         Route::put('/school-settings', [SchoolSettingsController::class, 'update']);
@@ -66,5 +74,14 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::delete('/assignments/{assignment}', [AssignmentController::class, 'destroy']);
         Route::get('/assignments/{assignment}/roster', [AssignmentController::class, 'roster']);
         Route::put('/assignment-submissions/{submission}/grade', [AssignmentSubmissionController::class, 'grade']);
+
+        Route::post('/lessons', [LessonController::class, 'store']);
+        Route::put('/lessons/{lesson}', [LessonController::class, 'update']);
+        Route::delete('/lessons/{lesson}', [LessonController::class, 'destroy']);
+
+        Route::post('/quizzes', [QuizController::class, 'store']);
+        Route::put('/quizzes/{quiz}', [QuizController::class, 'update']);
+        Route::delete('/quizzes/{quiz}', [QuizController::class, 'destroy']);
+        Route::get('/quizzes/{quiz}/roster', [QuizController::class, 'roster']);
     });
 });

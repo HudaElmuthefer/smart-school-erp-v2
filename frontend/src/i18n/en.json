@@ -16,6 +16,7 @@
     "attendance": "Attendance",
     "grades": "Grades",
     "assignments": "Assignments",
+    "lms": "Lessons & Quizzes",
     "schools": "Branches",
     "settings": "Settings",
     "logout": "Logout"

@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList, BookOpen } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useLocaleStore } from '../../store/localeStore';
@@ -24,6 +24,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'attendance', to: '/attendance', icon: <CalendarCheck size={18} />, labelKey: 'nav.attendance', excludeRoles: ['parent'] },
   { key: 'grades', to: '/grades', icon: <BarChart3 size={18} />, labelKey: 'nav.grades', excludeRoles: ['parent'] },
   { key: 'assignments', to: '/assignments', icon: <ClipboardList size={18} />, labelKey: 'nav.assignments' },
+  { key: 'lms', to: '/lms', icon: <BookOpen size={18} />, labelKey: 'nav.lms' },
   { key: 'schools', to: '/schools', icon: <Building2 size={18} />, labelKey: 'nav.schools', roles: ['super_admin'] },
   { key: 'settings', to: '/settings', icon: <Settings size={18} />, labelKey: 'nav.settings', excludeRoles: ['parent'] },
 ];
