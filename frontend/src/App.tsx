@@ -13,6 +13,7 @@ import GradesPage from './pages/GradesPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import LmsPage from './pages/LmsPage';
 import StaffPage from './pages/StaffPage';
+import FinancePage from './pages/FinancePage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -41,6 +42,7 @@ function App() {
       <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
       <Route path="/lms" element={<ProtectedRoute><LmsPage /></ProtectedRoute>} />
       <Route path="/staff" element={<ProtectedRoute><StaffPage /></ProtectedRoute>} />
+      <Route path="/finance" element={<ProtectedRoute><FinancePage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

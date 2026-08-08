@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AcademicYearController;
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\AssignmentSubmissionController;
 use App\Http\Controllers\Api\AttendanceController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\SubjectController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\TermScoreController;
+use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -87,5 +89,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::put('/quizzes/{quiz}', [QuizController::class, 'update']);
         Route::delete('/quizzes/{quiz}', [QuizController::class, 'destroy']);
         Route::get('/quizzes/{quiz}/roster', [QuizController::class, 'roster']);
+
+        Route::apiResource('accounts', AccountController::class)->except(['show']);
+        Route::apiResource('transactions', TransactionController::class)->only(['index', 'store', 'destroy']);
     });
 });
