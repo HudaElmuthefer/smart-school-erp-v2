@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\QuizController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\SchoolSettingsController;
 use App\Http\Controllers\Api\SectionController;
+use App\Http\Controllers\Api\StaffController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\SubjectController;
 use App\Http\Controllers\Api\TeacherController;
@@ -53,6 +54,9 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::apiResource('students', StudentController::class);
         Route::post('/students/{student}/guardian-account', [StudentController::class, 'createGuardianAccount']);
         Route::apiResource('teachers', TeacherController::class)->except(['show']);
+        Route::apiResource('staff', StaffController::class)
+            ->except(['show'])
+            ->parameters(['staff' => 'staffMember']);
 
         Route::apiResource('biometric-devices', BiometricDeviceController::class)
             ->except(['show'])
