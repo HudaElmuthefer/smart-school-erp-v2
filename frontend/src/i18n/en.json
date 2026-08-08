@@ -24,6 +24,7 @@
     "installments": "Installments",
     "inventory": "Inventory",
     "exportImport": "Export/Import",
+    "backups": "Backups",
     "schools": "Branches",
     "settings": "Settings",
     "logout": "Logout"

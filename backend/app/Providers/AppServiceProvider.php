@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Support\WindowsPostgreSqlDumper;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Backup\Tasks\Backup\DbDumperFactory;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if (PHP_OS_FAMILY === 'Windows') {
+            DbDumperFactory::extend('pgsql', fn () => new WindowsPostgreSqlDumper);
+        }
     }
 }

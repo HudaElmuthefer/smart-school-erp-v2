@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\AssignmentSubmissionController;
 use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BiometricDeviceController;
 use App\Http\Controllers\Api\ExportController;
@@ -123,5 +124,10 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('/exports/students', [ExportController::class, 'students']);
         Route::get('/exports/transactions', [ExportController::class, 'transactions']);
         Route::post('/imports/students', [ImportController::class, 'students']);
+
+        Route::get('/backups', [BackupController::class, 'index']);
+        Route::post('/backups', [BackupController::class, 'store']);
+        Route::get('/backups/download', [BackupController::class, 'download']);
+        Route::delete('/backups', [BackupController::class, 'destroy']);
     });
 });

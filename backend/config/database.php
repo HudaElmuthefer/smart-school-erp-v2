@@ -97,6 +97,13 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'dump' => [
+                /*
+                 * pg_dump ليس في PATH لعملية خادم الويب على ويندوز (بخلاف جلسة الطرفية)،
+                 * لذا يجب تحديد مجلد أدوات PostgreSQL صراحةً.
+                 */
+                'dump_binary_path' => env('PG_DUMP_BINARY_PATH', ''),
+            ],
         ],
 
         'sqlsrv' => [
