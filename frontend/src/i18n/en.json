@@ -20,6 +20,7 @@
     "staff": "Staff",
     "finance": "Finance & Accounts",
     "installments": "Installments",
+    "inventory": "Inventory",
     "schools": "Branches",
     "settings": "Settings",
     "logout": "Logout"

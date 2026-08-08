@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\FeePlanController;
 use App\Http\Controllers\Api\GradeLevelController;
 use App\Http\Controllers\Api\GradeReportController;
 use App\Http\Controllers\Api\InstallmentPaymentController;
+use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\LessonController;
 use App\Http\Controllers\Api\MonthlyScoreController;
 use App\Http\Controllers\Api\QuizAttemptController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\SchoolSettingsController;
 use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\StaffController;
+use App\Http\Controllers\Api\StockMovementController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\SubjectController;
 use App\Http\Controllers\Api\TeacherController;
@@ -99,5 +101,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
             ->only(['index', 'show', 'store', 'destroy'])
             ->parameters(['fee-plans' => 'feePlan']);
         Route::post('/installments/{installment}/payments', [InstallmentPaymentController::class, 'store']);
+
+        Route::apiResource('items', ItemController::class)->except(['show']);
+        Route::apiResource('stock-movements', StockMovementController::class)->only(['index', 'store', 'destroy']);
     });
 });
