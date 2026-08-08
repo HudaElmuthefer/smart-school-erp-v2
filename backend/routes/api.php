@@ -7,8 +7,10 @@ use App\Http\Controllers\Api\AssignmentSubmissionController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BiometricDeviceController;
+use App\Http\Controllers\Api\FeePlanController;
 use App\Http\Controllers\Api\GradeLevelController;
 use App\Http\Controllers\Api\GradeReportController;
+use App\Http\Controllers\Api\InstallmentPaymentController;
 use App\Http\Controllers\Api\LessonController;
 use App\Http\Controllers\Api\MonthlyScoreController;
 use App\Http\Controllers\Api\QuizAttemptController;
@@ -92,5 +94,10 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
         Route::apiResource('accounts', AccountController::class)->except(['show']);
         Route::apiResource('transactions', TransactionController::class)->only(['index', 'store', 'destroy']);
+
+        Route::apiResource('fee-plans', FeePlanController::class)
+            ->only(['index', 'show', 'store', 'destroy'])
+            ->parameters(['fee-plans' => 'feePlan']);
+        Route::post('/installments/{installment}/payments', [InstallmentPaymentController::class, 'store']);
     });
 });

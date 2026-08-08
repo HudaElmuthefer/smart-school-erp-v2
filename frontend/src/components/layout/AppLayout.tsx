@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList, BookOpen, Briefcase, Wallet } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList, BookOpen, Briefcase, Wallet, Receipt } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useLocaleStore } from '../../store/localeStore';
@@ -27,6 +27,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'lms', to: '/lms', icon: <BookOpen size={18} />, labelKey: 'nav.lms' },
   { key: 'staff', to: '/staff', icon: <Briefcase size={18} />, labelKey: 'nav.staff', excludeRoles: ['parent'] },
   { key: 'finance', to: '/finance', icon: <Wallet size={18} />, labelKey: 'nav.finance', excludeRoles: ['parent'] },
+  { key: 'installments', to: '/installments', icon: <Receipt size={18} />, labelKey: 'nav.installments', excludeRoles: ['parent'] },
   { key: 'schools', to: '/schools', icon: <Building2 size={18} />, labelKey: 'nav.schools', roles: ['super_admin'] },
   { key: 'settings', to: '/settings', icon: <Settings size={18} />, labelKey: 'nav.settings', excludeRoles: ['parent'] },
 ];
