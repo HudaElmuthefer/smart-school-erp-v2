@@ -23,6 +23,7 @@
     "finance": "Finance & Accounts",
     "installments": "Installments",
     "inventory": "Inventory",
+    "exportImport": "Export/Import",
     "schools": "Branches",
     "settings": "Settings",
     "logout": "Logout"

@@ -8,7 +8,9 @@ use App\Http\Controllers\Api\AssignmentSubmissionController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BiometricDeviceController;
+use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\FeePlanController;
+use App\Http\Controllers\Api\ImportController;
 use App\Http\Controllers\Api\GradeLevelController;
 use App\Http\Controllers\Api\GradeReportController;
 use App\Http\Controllers\Api\InstallmentPaymentController;
@@ -117,5 +119,9 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/announcements', [AnnouncementController::class, 'store']);
         Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update']);
         Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
+
+        Route::get('/exports/students', [ExportController::class, 'students']);
+        Route::get('/exports/transactions', [ExportController::class, 'transactions']);
+        Route::post('/imports/students', [ImportController::class, 'students']);
     });
 });
