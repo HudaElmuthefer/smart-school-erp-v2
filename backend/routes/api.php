@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BiometricDeviceController;
 use App\Http\Controllers\Api\GradeLevelController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\SchoolSettingsController;
@@ -31,4 +33,10 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::apiResource('subjects', SubjectController::class)->except(['show']);
     Route::apiResource('students', StudentController::class);
     Route::apiResource('teachers', TeacherController::class)->except(['show']);
+
+    Route::apiResource('biometric-devices', BiometricDeviceController::class)
+        ->except(['show'])
+        ->parameters(['biometric-devices' => 'device']);
+    Route::get('/attendances', [AttendanceController::class, 'index']);
+    Route::post('/attendances', [AttendanceController::class, 'store']);
 });

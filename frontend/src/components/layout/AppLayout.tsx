@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useLocaleStore } from '../../store/localeStore';
@@ -20,6 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'students', to: '/students', icon: <GraduationCap size={18} />, labelKey: 'nav.students' },
   { key: 'academic', to: '/academic-structure', icon: <Users size={18} />, labelKey: 'nav.academicStructure' },
   { key: 'teachers', to: '/teachers', icon: <Users size={18} />, labelKey: 'nav.teachers' },
+  { key: 'attendance', to: '/attendance', icon: <CalendarCheck size={18} />, labelKey: 'nav.attendance' },
   { key: 'schools', to: '/schools', icon: <Building2 size={18} />, labelKey: 'nav.schools', roles: ['super_admin'] },
   { key: 'settings', to: '/settings', icon: <Settings size={18} />, labelKey: 'nav.settings' },
 ];
