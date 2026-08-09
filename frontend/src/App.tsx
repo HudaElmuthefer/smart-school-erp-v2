@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import LoginScreen from './pages/LoginScreen';
 import DashboardShell from './pages/DashboardShell';
-import SettingsPage from './pages/SettingsPage';
+import SettingsPage from './pages/settings/SettingsPage';
 import SchoolsPage from './pages/SchoolsPage';
 import AcademicStructurePage from './pages/AcademicStructurePage';
 import StudentsPage from './pages/StudentsPage';

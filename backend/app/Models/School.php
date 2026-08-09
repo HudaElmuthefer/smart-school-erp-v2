@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class School extends Model
 {
@@ -16,6 +18,7 @@ class School extends Model
         'phone', 'address', 'email', 'is_active', 'extra_settings',
         'login_tagline_ar', 'login_tagline_en', 'dashboard_quote_ar', 'dashboard_quote_en',
     ];
+    protected $appends = ['logo_url'];
 
     protected function casts(): array
     {
@@ -29,5 +32,10 @@ class School extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    protected function logoUrl(): Attribute
+    {
+        return Attribute::get(fn () => $this->logo_path ? Storage::disk('public')->url($this->logo_path) : null);
     }
 }

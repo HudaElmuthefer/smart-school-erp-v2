@@ -31,9 +31,12 @@ use App\Http\Controllers\Api\StaffController;
 use App\Http\Controllers\Api\StockMovementController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\SubjectController;
+use App\Http\Controllers\Api\SystemInfoController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\TermScoreController;
 use App\Http\Controllers\Api\TransactionController;
+use App\Http\Controllers\Api\TrashController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -63,6 +66,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
     Route::middleware('staff')->group(function () {
         Route::put('/school-settings', [SchoolSettingsController::class, 'update']);
+        Route::post('/school-settings/logo', [SchoolSettingsController::class, 'uploadLogo']);
 
         Route::get('/schools', [SchoolController::class, 'index']);
         Route::post('/schools', [SchoolController::class, 'store']);
@@ -137,5 +141,15 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/backups', [BackupController::class, 'store']);
         Route::get('/backups/download', [BackupController::class, 'download']);
         Route::delete('/backups', [BackupController::class, 'destroy']);
+
+        Route::get('/system-info', SystemInfoController::class);
+
+        Route::apiResource('users', UserController::class)->except(['show']);
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword']);
+        Route::post('/users/{user}/toggle-permission', [UserController::class, 'togglePermission']);
+
+        Route::get('/trash', [TrashController::class, 'index']);
+        Route::post('/trash/{type}/{id}/restore', [TrashController::class, 'restore']);
+        Route::delete('/trash/{type}/{id}', [TrashController::class, 'forceDelete']);
     });
 });

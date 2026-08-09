@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\ScopesToSchool;
 use App\Http\Controllers\Controller;
 use App\Models\School;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SchoolSettingsController extends Controller
 {
@@ -43,10 +44,35 @@ class SchoolSettingsController extends Controller
             'login_tagline_en' => ['sometimes', 'nullable', 'string', 'max:255'],
             'dashboard_quote_ar' => ['sometimes', 'nullable', 'string', 'max:255'],
             'dashboard_quote_en' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'extra_settings' => ['sometimes', 'array'],
         ]);
+
+        // extra_settings يُدمَج بدل الاستبدال الكامل حتى لا يمحو تبويب (مثل الطباعة) ما حفظه تبويب آخر (مثل النظام)
+        if (array_key_exists('extra_settings', $data)) {
+            $data['extra_settings'] = array_merge($school->extra_settings ?? [], $data['extra_settings']);
+        }
 
         $school->update($data);
 
         return response()->json(['school' => $school->fresh()]);
+    }
+
+    public function uploadLogo(Request $request)
+    {
+        $schoolId = $this->requireSchoolId($request);
+        $school = School::findOrFail($schoolId);
+
+        $request->validate([
+            'logo' => ['required', 'image', 'max:2048'],
+        ]);
+
+        if ($school->logo_path) {
+            Storage::disk('public')->delete($school->logo_path);
+        }
+
+        $path = $request->file('logo')->store('logos', 'public');
+        $school->update(['logo_path' => $path]);
+
+        return response()->json(['school' => $school->fresh(), 'logo_url' => Storage::disk('public')->url($path)]);
     }
 }
