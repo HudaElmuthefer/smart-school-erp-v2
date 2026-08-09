@@ -6,6 +6,10 @@ import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { useLocaleStore } from '../../store/localeStore';
 import { api } from '../../lib/api';
+import logoLight from '../../assets/logo_light.png';
+import logoDark from '../../assets/logo_dark.png';
+import sidebarBgLight from '../../assets/sidebar_light.png';
+import sidebarBgDark from '../../assets/sidebar_dark.png';
 
 interface NavItem {
   key: string;
@@ -64,37 +68,49 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     navigate('/login');
   };
 
+  const logo = mode === 'dark' ? logoDark : logoLight;
+  const sidebarBg = mode === 'dark' ? sidebarBgDark : sidebarBgLight;
+
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-navy-950">
-      <aside className="flex w-64 flex-col bg-navy-900 text-slate-100">
-        <div className="p-5 text-center">
-          <h2 className="text-sm font-bold">{t('appName')}</h2>
-        </div>
-        <nav className="flex-1 px-3">
-          {visibleItems.map((item) => {
-            const active = location.pathname === item.to;
-            return (
-              <Link
-                key={item.key}
-                to={item.to}
-                className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${
-                  active ? 'bg-gold-500 font-bold text-navy-950' : 'text-slate-200 hover:bg-white/5'
-                }`}
-              >
-                {item.icon}
-                {t(item.labelKey)}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="border-t border-white/10 p-4">
-          <div className="mb-3 text-xs">
-            <div className="font-bold">{user?.full_name}</div>
-            <div className="text-slate-400">{user?.role_ar}</div>
+      <aside className="relative flex w-64 flex-col overflow-hidden text-slate-100">
+        <img src={sidebarBg} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-navy-950/60" />
+
+        <div className="relative z-10 flex flex-1 flex-col">
+          <div className="p-5 text-center">
+            <img src={logo} alt={t('appName')} className="mx-auto h-14 w-14 object-contain" />
+            <h2 className="mt-2 text-sm font-bold">{t('appName')}</h2>
           </div>
-          <button onClick={logout} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white">
-            <LogOut size={14} /> {t('nav.logout')}
-          </button>
+          <nav className="flex-1 px-3">
+            {visibleItems.map((item) => {
+              const active = location.pathname === item.to;
+              return (
+                <Link
+                  key={item.key}
+                  to={item.to}
+                  className={`mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${
+                    active ? 'bg-gold-500 font-bold text-navy-950' : 'text-slate-200 hover:bg-white/10'
+                  }`}
+                >
+                  {item.icon}
+                  {t(item.labelKey)}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="border-t border-white/15 p-4">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="h-9 w-9 shrink-0 rounded-full bg-slate-400/80" />
+              <div className="text-xs">
+                <div className="font-bold">{user?.full_name}</div>
+                <div className="text-slate-300">{user?.role_ar}</div>
+              </div>
+            </div>
+            <button onClick={logout} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white">
+              <LogOut size={14} /> {t('nav.logout')}
+            </button>
+          </div>
         </div>
       </aside>
 
