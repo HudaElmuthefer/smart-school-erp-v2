@@ -46,9 +46,10 @@ class BackupController extends Controller
     {
         $this->assertCanManageBackups($request);
 
-        // النوع: db (قاعدة بيانات فقط، الافتراضي) أو full (قاعدة بيانات + كود الخادم)
-        $type = $request->validate(['type' => ['sometimes', 'in:db,full']])['type'] ?? 'db';
-        $options = $type === 'db' ? ['--only-db' => true] : [];
+        // قسمان مستقلان تماماً: db (قاعدة بيانات فقط) أو files (كود الخادم فقط) —
+        // لا يوجد نوع "كامل" مدمج حتى يبقى كل قسم بواجهة الإعدادات مستقلاً بنسخه الخاصة
+        $type = $request->validate(['type' => ['required', 'in:db,files']])['type'];
+        $options = $type === 'db' ? ['--only-db' => true] : ['--only-files' => true];
 
         $exitCode = Artisan::call('backup:run', $options);
 

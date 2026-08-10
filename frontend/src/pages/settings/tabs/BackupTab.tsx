@@ -12,7 +12,8 @@ interface Backup {
   has_files: boolean;
 }
 
-type ConfirmAction = { kind: 'restore-db' | 'restore-files'; backup: Backup } | null;
+type BackupType = 'db' | 'files';
+type ConfirmAction = { type: BackupType; backup: Backup } | null;
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} بايت`;
@@ -30,7 +31,7 @@ export default function BackupTab() {
   });
 
   const runBackup = useMutation({
-    mutationFn: (type: 'db' | 'full') => api.post('/backups', { type }),
+    mutationFn: (type: BackupType) => api.post('/backups', { type }),
     onSuccess: () => {
       toast.success('تم إنشاء نسخة احتياطية جديدة');
       queryClient.invalidateQueries({ queryKey: ['backups'] });
@@ -84,93 +85,38 @@ export default function BackupTab() {
   };
 
   const isRestoring = restoreDatabase.isPending || restoreFiles.isPending;
+  const dbBackups = backups.data?.filter((b) => b.has_db) ?? [];
+  const fileBackups = backups.data?.filter((b) => b.has_files) ?? [];
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-bold text-navy-900 dark:text-white">🗄️ النسخ الاحتياطي</h2>
-        <div className="flex gap-2">
-          <button
-            disabled={runBackup.isPending}
-            onClick={() => runBackup.mutate('db')}
-            className="rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950 disabled:opacity-60"
-          >
-            {runBackup.isPending ? 'جارٍ الإنشاء...' : '+ نسخة قاعدة البيانات'}
-          </button>
-          <button
-            disabled={runBackup.isPending}
-            onClick={() => runBackup.mutate('full')}
-            className="rounded-xl border border-gold-500 px-5 py-2 text-sm font-bold text-gold-600 disabled:opacity-60"
-          >
-            {runBackup.isPending ? 'جارٍ الإنشاء...' : '+ نسخة كاملة (كود + قاعدة بيانات)'}
-          </button>
-        </div>
-      </div>
+      <h2 className="mb-4 text-lg font-bold text-navy-900 dark:text-white">🗄️ النسخ الاحتياطي</h2>
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-navy-800">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-slate-500 dark:text-slate-400">
-              <th className="p-3 text-start">الملف</th>
-              <th className="p-3 text-start">المحتوى</th>
-              <th className="p-3 text-start">الحجم</th>
-              <th className="p-3 text-start">التاريخ</th>
-              <th className="p-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {backups.data?.length === 0 && (
-              <tr>
-                <td colSpan={5} className="p-4 text-center text-slate-400">
-                  لا توجد نسخ احتياطية بعد
-                </td>
-              </tr>
-            )}
-            {backups.data?.map((b) => (
-              <tr key={b.path} className="border-t border-slate-100 dark:border-white/5">
-                <td className="p-3 text-navy-900 dark:text-white">{b.path.split('/').pop()}</td>
-                <td className="p-3 text-slate-500 dark:text-slate-400">
-                  {b.has_db && (
-                    <span className="me-1 rounded-full bg-blue-500/15 px-2 py-0.5 text-xs font-bold text-blue-600 dark:text-blue-400">
-                      قاعدة بيانات
-                    </span>
-                  )}
-                  {b.has_files && (
-                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                      كود
-                    </span>
-                  )}
-                </td>
-                <td className="p-3 text-slate-500 dark:text-slate-400">{formatSize(b.size)}</td>
-                <td className="p-3 text-slate-500 dark:text-slate-400">{b.date}</td>
-                <td className="p-3 text-end whitespace-nowrap">
-                  {b.has_db && (
-                    <button
-                      onClick={() => setConfirmAction({ kind: 'restore-db', backup: b })}
-                      className="me-3 text-xs font-bold text-blue-600"
-                    >
-                      استرجاع قاعدة البيانات
-                    </button>
-                  )}
-                  {b.has_files && (
-                    <button
-                      onClick={() => setConfirmAction({ kind: 'restore-files', backup: b })}
-                      className="me-3 text-xs font-bold text-emerald-600"
-                    >
-                      استرجاع الكود
-                    </button>
-                  )}
-                  <button onClick={() => download(b)} className="me-3 text-xs font-bold text-gold-600">
-                    تنزيل
-                  </button>
-                  <button onClick={() => deleteBackup.mutate(b)} className="text-xs text-red-500">
-                    حذف
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <BackupSection
+          icon="🧬"
+          title="قاعدة البيانات"
+          createLabel="+ إنشاء نسخة قاعدة بيانات"
+          isCreating={runBackup.isPending}
+          onCreate={() => runBackup.mutate('db')}
+          backups={dbBackups}
+          restoreLabel="استرجاع"
+          onRestore={(b) => setConfirmAction({ type: 'db', backup: b })}
+          onDownload={download}
+          onDelete={(b) => deleteBackup.mutate(b)}
+        />
+        <BackupSection
+          icon="💾"
+          title="كود الخادم"
+          createLabel="+ إنشاء نسخة كود"
+          isCreating={runBackup.isPending}
+          onCreate={() => runBackup.mutate('files')}
+          backups={fileBackups}
+          restoreLabel="استرجاع"
+          onRestore={(b) => setConfirmAction({ type: 'files', backup: b })}
+          onDownload={download}
+          onDelete={(b) => deleteBackup.mutate(b)}
+        />
       </div>
 
       {confirmAction && (
@@ -180,10 +126,10 @@ export default function BackupTab() {
         >
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-navy-800" onClick={(e) => e.stopPropagation()}>
             <h3 className="mb-2 font-bold text-navy-900 dark:text-white">
-              {confirmAction.kind === 'restore-db' ? 'استرجاع قاعدة البيانات' : 'استرجاع كود الخادم'}
+              {confirmAction.type === 'db' ? 'استرجاع قاعدة البيانات' : 'استرجاع كود الخادم'}
             </h3>
             <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-              {confirmAction.kind === 'restore-db'
+              {confirmAction.type === 'db'
                 ? 'سيتم استبدال قاعدة البيانات الحالية بالكامل بمحتوى هذه النسخة. لا يمكن التراجع عن هذا الإجراء.'
                 : 'سيتم استبدال ملفات كود الخادم الحالية بمحتوى هذه النسخة (باستثناء .env). لا يمكن التراجع عن هذا الإجراء.'}
             </p>
@@ -198,7 +144,7 @@ export default function BackupTab() {
               <button
                 disabled={isRestoring}
                 onClick={() =>
-                  confirmAction.kind === 'restore-db'
+                  confirmAction.type === 'db'
                     ? restoreDatabase.mutate(confirmAction.backup)
                     : restoreFiles.mutate(confirmAction.backup)
                 }
@@ -210,6 +156,87 @@ export default function BackupTab() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function BackupSection({
+  icon,
+  title,
+  createLabel,
+  isCreating,
+  onCreate,
+  backups,
+  restoreLabel,
+  onRestore,
+  onDownload,
+  onDelete,
+}: {
+  icon: string;
+  title: string;
+  createLabel: string;
+  isCreating: boolean;
+  onCreate: () => void;
+  backups: Backup[];
+  restoreLabel: string;
+  onRestore: (b: Backup) => void;
+  onDownload: (b: Backup) => void;
+  onDelete: (b: Backup) => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-navy-800">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="font-bold text-navy-900 dark:text-white">
+          {icon} {title}
+        </h3>
+        <button
+          disabled={isCreating}
+          onClick={onCreate}
+          className="rounded-xl bg-gold-500 px-4 py-2 text-xs font-bold text-navy-950 disabled:opacity-60"
+        >
+          {isCreating ? 'جارٍ الإنشاء...' : createLabel}
+        </button>
+      </div>
+
+      <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-white/5">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-slate-500 dark:text-slate-400">
+              <th className="p-2 text-start">الملف</th>
+              <th className="p-2 text-start">الحجم</th>
+              <th className="p-2 text-start">التاريخ</th>
+              <th className="p-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {backups.length === 0 && (
+              <tr>
+                <td colSpan={4} className="p-4 text-center text-slate-400">
+                  لا توجد نسخ بعد
+                </td>
+              </tr>
+            )}
+            {backups.map((b) => (
+              <tr key={b.path} className="border-t border-slate-100 dark:border-white/5">
+                <td className="p-2 text-navy-900 dark:text-white">{b.path.split('/').pop()}</td>
+                <td className="p-2 text-slate-500 dark:text-slate-400">{formatSize(b.size)}</td>
+                <td className="p-2 text-slate-500 dark:text-slate-400">{b.date}</td>
+                <td className="p-2 text-end whitespace-nowrap">
+                  <button onClick={() => onRestore(b)} className="me-2 font-bold text-blue-600">
+                    {restoreLabel}
+                  </button>
+                  <button onClick={() => onDownload(b)} className="me-2 font-bold text-gold-600">
+                    تنزيل
+                  </button>
+                  <button onClick={() => onDelete(b)} className="text-red-500">
+                    حذف
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

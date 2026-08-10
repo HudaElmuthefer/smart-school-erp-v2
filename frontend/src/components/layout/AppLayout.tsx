@@ -169,7 +169,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex-1">
+      <div className="flex min-h-screen flex-1 flex-col">
         <header className="flex items-center justify-end gap-2 border-b border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-navy-800">
           <button
             onClick={toggleTheme}
@@ -178,7 +178,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             {mode === 'dark' ? '☀️' : '🌙'}
           </button>
         </header>
-        <main className="p-6">{children}</main>
+        <main className="flex-1 p-6">{children}</main>
+        <footer className="border-t border-slate-200 bg-white px-4 py-2 text-center text-xs text-slate-500 dark:border-white/10 dark:bg-navy-800 dark:text-slate-400">
+          جميع الحقوق محفوظة © {new Date().getFullYear()} المهندسة هدى المذيفر — {appName}
+        </footer>
       </div>
     </div>
   );
