@@ -39,6 +39,9 @@ return [
                     base_path('vendor'),
                     base_path('node_modules'),
                     storage_path('framework'),
+                    // .env يحوي بيانات اتصال حساسة (كلمة مرور قاعدة البيانات، مفاتيح API) —
+                    // لا يجوز تضمينه بملف نسخة احتياطية قد يُنزَّل أو يُخزَّن خارج الخادم
+                    base_path('.env'),
                 ],
 
                 /*

@@ -141,6 +141,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('/backups', [BackupController::class, 'store']);
         Route::get('/backups/download', [BackupController::class, 'download']);
         Route::delete('/backups', [BackupController::class, 'destroy']);
+        Route::post('/backups/restore-database', [BackupController::class, 'restoreDatabase']);
+        Route::post('/backups/restore-files', [BackupController::class, 'restoreFiles']);
 
         Route::get('/system-info', SystemInfoController::class);
 
