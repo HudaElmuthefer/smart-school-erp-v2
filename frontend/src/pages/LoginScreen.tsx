@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { useAuthStore, type AuthUser } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
-import { useLocaleStore } from '../store/localeStore';
+import { useSchoolBranding } from '../hooks/useSchoolBranding';
 import loginLogoLight from '../assets/login_logo_light.png';
 import loginLogoDark from '../assets/login_dark_top.png';
 import loginLightSide from '../assets/login_light_side.png';
@@ -14,31 +14,17 @@ import loginDarkSide from '../assets/login_dark_side.png';
 import loginLightBottom from '../assets/login_light_bottom.png';
 import loginDarkBottom from '../assets/login_dark_bottom.png';
 
-interface School {
-  id: number;
-  app_name_ar: string | null;
-  app_name_en: string | null;
-  login_tagline_ar: string | null;
-  login_tagline_en: string | null;
-  logo_path: string | null;
-}
-
 export default function LoginScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const setSession = useAuthStore((s) => s.setSession);
   const { mode, toggle: toggleTheme } = useThemeStore();
-  const { locale, setLocale } = useLocaleStore();
-  const isEnglish = locale === 'en';
   const isDark = mode === 'dark';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { data } = useQuery({
-    queryKey: ['school-settings'],
-    queryFn: async () => (await api.get<{ school: School }>('/school-settings')).data.school,
-  });
+  const { data } = useSchoolBranding();
 
   const loginMutation = useMutation({
     mutationFn: async () => (await api.post<{ token: string; user: AuthUser }>('/login', { email, password })).data,
@@ -51,22 +37,16 @@ export default function LoginScreen() {
     },
   });
 
-  const appName = (isEnglish ? data?.app_name_en : data?.app_name_ar) || t('appName');
-  const tagline = isEnglish ? data?.login_tagline_en : data?.login_tagline_ar;
+  const appName = data?.app_name_ar || t('appName');
+  const tagline = data?.login_tagline_ar;
 
-  const logo = isDark ? loginLogoDark : loginLogoLight;
+  const logo = data?.logo_url || (isDark ? loginLogoDark : loginLogoLight);
   const sideImage = isDark ? loginDarkSide : loginLightSide;
   const bottomImage = isDark ? loginDarkBottom : loginLightBottom;
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-slate-50 dark:bg-navy-950">
       <div className="absolute top-4 start-4 z-10 flex gap-2">
-        <button
-          onClick={() => setLocale(isEnglish ? 'ar' : 'en')}
-          className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-sm dark:border-white/10 dark:bg-navy-800 dark:text-slate-200"
-        >
-          🌐 {isEnglish ? 'عربي' : 'English'}
-        </button>
         <button
           onClick={toggleTheme}
           className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-sm dark:border-white/10 dark:bg-navy-800 dark:text-slate-200"

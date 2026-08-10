@@ -49,7 +49,7 @@ export interface SettingsTabDef {
 
 export const SETTINGS_TABS: SettingsTabDef[] = [
   { key: 'users', label: 'المستخدمون والصلاحيات', icon: '👥' },
-  { key: 'appearance', label: 'المظهر واللغة', icon: '🎨' },
+  { key: 'appearance', label: 'المظهر والألوان', icon: '🎨' },
   { key: 'system', label: 'إعدادات النظام', icon: '⚙️' },
   { key: 'print', label: 'إعدادات الطباعة', icon: '🖨️' },
   { key: 'logo', label: 'الشعار', icon: '🖼️' },

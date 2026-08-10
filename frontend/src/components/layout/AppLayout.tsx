@@ -1,10 +1,11 @@
-import { type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList, BookOpen, Briefcase, Wallet, Receipt, Package, Megaphone, MessageSquare, FileSpreadsheet, DatabaseBackup, Bot, AlertTriangle } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, GraduationCap, Building2, Settings, CalendarCheck, BarChart3, ClipboardList, BookOpen, Briefcase, Wallet, Receipt, Package, Megaphone, MessageSquare, FileSpreadsheet, DatabaseBackup, Bot, AlertTriangle, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
-import { useLocaleStore } from '../../store/localeStore';
+import { useSchoolBranding } from '../../hooks/useSchoolBranding';
+import { SETTINGS_TABS } from '../../pages/settings/constants';
 import { api } from '../../lib/api';
 import logoLight from '../../assets/logo_light.png';
 import logoDark from '../../assets/logo_dark.png';
@@ -50,7 +51,19 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const clearSession = useAuthStore((s) => s.clearSession);
   const { mode, toggle: toggleTheme } = useThemeStore();
-  const { locale, setLocale } = useLocaleStore();
+  const { data: school } = useSchoolBranding();
+
+  const onSettingsPage = location.pathname === '/settings';
+  const currentSettingsTab = new URLSearchParams(location.search).get('tab') ?? 'users';
+  const [settingsExpanded, setSettingsExpanded] = useState(onSettingsPage);
+  useEffect(() => {
+    if (onSettingsPage) setSettingsExpanded(true);
+  }, [onSettingsPage]);
+
+  const toggleSettingsNav = () => {
+    if (!onSettingsPage) navigate('/settings?tab=users');
+    else setSettingsExpanded((v) => !v);
+  };
 
   const visibleItems = NAV_ITEMS.filter(
     (item) =>
@@ -68,8 +81,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     navigate('/login');
   };
 
-  const logo = mode === 'dark' ? logoDark : logoLight;
+  const logo = school?.logo_url || (mode === 'dark' ? logoDark : logoLight);
   const sidebarBg = mode === 'dark' ? sidebarBgDark : sidebarBgLight;
+  const appName = school?.app_name_ar || t('appName');
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-navy-950">
@@ -79,12 +93,53 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
         <div className="relative z-10 flex flex-1 flex-col">
           <div className="p-5 text-center">
-            <img src={logo} alt={t('appName')} className="mx-auto h-14 w-14 object-contain" />
-            <h2 className="mt-2 text-sm font-bold">{t('appName')}</h2>
+            <img src={logo} alt={appName} className="mx-auto h-14 w-14 object-contain" />
+            <h2 className="mt-2 text-sm font-bold">{appName}</h2>
           </div>
           <nav className="flex-1 px-3">
             {visibleItems.map((item) => {
               const active = location.pathname === item.to;
+
+              if (item.key === 'settings') {
+                return (
+                  <div key={item.key}>
+                    <button
+                      type="button"
+                      onClick={toggleSettingsNav}
+                      className={`mb-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${
+                        active ? 'bg-gold-500 font-bold text-navy-950' : 'text-slate-200 hover:bg-white/10'
+                      }`}
+                    >
+                      {item.icon}
+                      <span className="flex-1 text-start">{t(item.labelKey)}</span>
+                      <ChevronDown
+                        size={14}
+                        className={`shrink-0 transition-transform ${settingsExpanded ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    {settingsExpanded && (
+                      <div className="mb-1 ms-3 space-y-0.5 border-s border-white/10 ps-3">
+                        {SETTINGS_TABS.map((tabItem) => {
+                          const tabActive = active && currentSettingsTab === tabItem.key;
+                          return (
+                            <Link
+                              key={tabItem.key}
+                              to={`/settings?tab=${tabItem.key}`}
+                              className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs ${
+                                tabActive ? 'bg-gold-500/20 font-bold text-gold-400' : 'text-slate-300 hover:bg-white/5'
+                              }`}
+                            >
+                              <span>{tabItem.icon}</span>
+                              {tabItem.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <Link
                   key={item.key}
@@ -116,12 +171,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       <div className="flex-1">
         <header className="flex items-center justify-end gap-2 border-b border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-navy-800">
-          <button
-            onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
-            className="rounded-full border border-slate-200 px-3 py-1.5 text-xs dark:border-white/10 dark:text-slate-200"
-          >
-            🌐 {locale === 'ar' ? 'English' : 'عربي'}
-          </button>
           <button
             onClick={toggleTheme}
             className="rounded-full border border-slate-200 px-3 py-1.5 text-xs dark:border-white/10 dark:text-slate-200"
