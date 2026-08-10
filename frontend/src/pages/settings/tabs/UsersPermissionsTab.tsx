@@ -95,7 +95,6 @@ export default function UsersPermissionsTab() {
   const togglePermission = useMutation({
     mutationFn: ({ userId, sectionKey }: { userId: number; sectionKey: string }) =>
       api.post(`/users/${userId}/toggle-permission`, { section_key: sectionKey }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['settings-users'] }),
   });
 
   const availableSections = users.data?.available_sections ?? Object.keys(SECTION_LABELS);
@@ -195,7 +194,11 @@ export default function UsersPermissionsTab() {
               {editingUser ? `تعديل — ${editingUser.full_name}` : 'إضافة مستخدم جديد'}
             </h3>
             {editingUser ? (
-              <EditUserForm user={editingUser} onSave={(payload) => updateUser.mutate(payload)} />
+              <EditUserForm
+                user={editingUser}
+                onSave={(payload) => updateUser.mutate(payload)}
+                onCancel={() => setEditingUser(null)}
+              />
             ) : (
               <div className="space-y-3">
                 <input
@@ -218,13 +221,21 @@ export default function UsersPermissionsTab() {
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                 />
                 <RoleSelect value={form.role_id} onChange={(v) => setForm({ ...form, role_id: v })} />
-                <button
-                  disabled={!canSubmitCreate}
-                  onClick={() => createUser.mutate()}
-                  className="w-full rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950 disabled:opacity-60"
-                >
-                  إنشاء
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowCreate(false)}
+                    className="flex-1 rounded-xl border border-slate-200 px-4 py-2 text-sm dark:border-white/10 dark:text-slate-200"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    disabled={!canSubmitCreate}
+                    onClick={() => createUser.mutate()}
+                    className="flex-1 rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950 disabled:opacity-60"
+                  >
+                    إنشاء
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -235,8 +246,14 @@ export default function UsersPermissionsTab() {
         <PermissionsModal
           user={permissionsUser}
           availableSections={availableSections}
-          onClose={() => setPermissionsUser(null)}
-          onToggle={(sectionKey) => togglePermission.mutate({ userId: permissionsUser.id, sectionKey })}
+          onCancel={() => setPermissionsUser(null)}
+          onSave={async (sectionKey) => {
+            await togglePermission.mutateAsync({ userId: permissionsUser.id, sectionKey });
+          }}
+          onSaved={() => {
+            queryClient.invalidateQueries({ queryKey: ['settings-users'] });
+            setPermissionsUser(null);
+          }}
         />
       )}
 
@@ -272,48 +289,72 @@ export default function UsersPermissionsTab() {
 function PermissionsModal({
   user,
   availableSections,
-  onClose,
-  onToggle,
+  onCancel,
+  onSave,
+  onSaved,
 }: {
   user: UserRow;
   availableSections: string[];
-  onClose: () => void;
-  onToggle: (sectionKey: string) => void;
+  onCancel: () => void;
+  onSave: (sectionKey: string) => Promise<void>;
+  onSaved: () => void;
 }) {
-  const allSelected = availableSections.every((key) => user.sections.includes(key));
+  // نسخة محلية (draft) — لا تُرسَل أي صلاحية للخادم إلا عند الضغط على "حفظ"،
+  // حتى يكون زر "إلغاء" فعلياً بلا أي أثر جانبي، ويعكس زر "حفظ" فعلاً حقيقياً واحداً واضحاً
+  const [draft, setDraft] = useState<Set<string>>(() => new Set(user.sections));
+  const [saving, setSaving] = useState(false);
+  const allSelected = availableSections.every((key) => draft.has(key));
 
-  const handleSelectAll = () => {
-    availableSections.forEach((key) => {
-      if (!user.sections.includes(key)) onToggle(key);
+  const toggleDraft = (key: string) => {
+    setDraft((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
     });
   };
-  const handleDeselectAll = () => {
-    availableSections.forEach((key) => {
-      if (user.sections.includes(key)) onToggle(key);
-    });
+
+  const handleSave = async () => {
+    const toAdd = availableSections.filter((k) => draft.has(k) && !user.sections.includes(k));
+    const toRemove = availableSections.filter((k) => !draft.has(k) && user.sections.includes(k));
+    if (toAdd.length === 0 && toRemove.length === 0) {
+      onSaved();
+      return;
+    }
+    setSaving(true);
+    try {
+      for (const key of [...toAdd, ...toRemove]) {
+        await onSave(key);
+      }
+      toast.success('تم حفظ الصلاحيات');
+      onSaved();
+    } catch {
+      toast.error('تعذّر حفظ الصلاحيات');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-6" onClick={onClose}>
+    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-6" onClick={() => !saving && onCancel()}>
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 dark:bg-navy-800" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-bold text-navy-900 dark:text-white">صلاحيات — {user.full_name}</h3>
           <div className="flex gap-2 text-xs">
-            <button onClick={handleSelectAll} className="font-bold text-gold-600">
+            <button onClick={() => setDraft(new Set(availableSections))} className="font-bold text-gold-600">
               تحديد الكل
             </button>
-            <button onClick={handleDeselectAll} className="font-bold text-red-500">
+            <button onClick={() => setDraft(new Set())} className="font-bold text-red-500">
               إلغاء تحديد الكل
             </button>
           </div>
         </div>
         <div className="grid max-h-80 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
           {availableSections.map((key) => {
-            const active = user.sections.includes(key);
+            const active = draft.has(key);
             return (
               <button
                 key={key}
-                onClick={() => onToggle(key)}
+                onClick={() => toggleDraft(key)}
                 className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs ${
                   active
                     ? 'border-gold-500 bg-gold-500/10 font-bold text-gold-600'
@@ -333,12 +374,22 @@ function PermissionsModal({
           })}
         </div>
         <p className="mt-3 text-xs text-slate-400">{allSelected ? 'كل الأقسام مفعّلة لهذا المستخدم' : ''}</p>
-        <button
-          onClick={onClose}
-          className="mt-4 w-full rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950"
-        >
-          تم
-        </button>
+        <div className="mt-4 flex gap-2">
+          <button
+            disabled={saving}
+            onClick={onCancel}
+            className="flex-1 rounded-xl border border-slate-200 px-4 py-2 text-sm dark:border-white/10 dark:text-slate-200"
+          >
+            إلغاء
+          </button>
+          <button
+            disabled={saving}
+            onClick={handleSave}
+            className="flex-1 rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950 disabled:opacity-60"
+          >
+            {saving ? 'جارٍ الحفظ...' : 'حفظ'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -370,9 +421,11 @@ function RoleSelect({ value, onChange }: { value: string; onChange: (v: string) 
 function EditUserForm({
   user,
   onSave,
+  onCancel,
 }: {
   user: UserRow;
   onSave: (payload: { id: number; full_name: string; email: string; role_id: number }) => void;
+  onCancel: () => void;
 }) {
   const [fullName, setFullName] = useState(user.full_name);
   const [email, setEmail] = useState(user.email);
@@ -383,12 +436,20 @@ function EditUserForm({
       <input className={`${inputCls} w-full`} value={fullName} onChange={(e) => setFullName(e.target.value)} />
       <input className={`${inputCls} w-full`} value={email} onChange={(e) => setEmail(e.target.value)} />
       <RoleSelect value={roleId} onChange={setRoleId} />
-      <button
-        onClick={() => onSave({ id: user.id, full_name: fullName, email, role_id: Number(roleId) })}
-        className="w-full rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950"
-      >
-        حفظ التعديل
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={onCancel}
+          className="flex-1 rounded-xl border border-slate-200 px-4 py-2 text-sm dark:border-white/10 dark:text-slate-200"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={() => onSave({ id: user.id, full_name: fullName, email, role_id: Number(roleId) })}
+          className="flex-1 rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950"
+        >
+          حفظ
+        </button>
+      </div>
     </div>
   );
 }

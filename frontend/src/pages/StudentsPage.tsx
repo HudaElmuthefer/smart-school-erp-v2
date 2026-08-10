@@ -126,13 +126,21 @@ export default function StudentsPage() {
                 value={guardianPassword}
                 onChange={(e) => setGuardianPassword(e.target.value)}
               />
-              <button
-                disabled={!guardianName || !guardianEmail || guardianPassword.length < 8}
-                onClick={() => createGuardian.mutate({ full_name: guardianName, email: guardianEmail, password: guardianPassword })}
-                className="w-full rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950 disabled:opacity-60"
-              >
-                إنشاء الحساب
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setGuardianFor(null)}
+                  className="flex-1 rounded-xl border border-slate-200 px-4 py-2 text-sm dark:border-white/10 dark:text-slate-200"
+                >
+                  إلغاء
+                </button>
+                <button
+                  disabled={!guardianName || !guardianEmail || guardianPassword.length < 8}
+                  onClick={() => createGuardian.mutate({ full_name: guardianName, email: guardianEmail, password: guardianPassword })}
+                  className="flex-1 rounded-xl bg-gold-500 px-5 py-2 text-sm font-bold text-navy-950 disabled:opacity-60"
+                >
+                  إنشاء الحساب
+                </button>
+              </div>
             </div>
           </div>
         </div>
